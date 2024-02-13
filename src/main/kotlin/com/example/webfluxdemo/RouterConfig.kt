@@ -31,8 +31,7 @@ open class RouterConfig {
 
     fun events(request: ServerRequest): Mono<ServerResponse> {
         val html = countries.map { "<p>$it</p>" }
-        return ServerResponse
-            .ok()
+        return ok()
             .contentType(MediaType.TEXT_HTML)
             .body(html, object : ParameterizedTypeReference<String>() {})
     }
