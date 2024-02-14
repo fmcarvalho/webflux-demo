@@ -11,37 +11,18 @@ sleep 1
 while ! grep -m1 'Started WebfluxDemoApplicationKt' < spring-webflux.log; do
     sleep 1
 done
-
-timeout=30  # Set your desired timeout in seconds
-elapsed_time=0
 #
-# Start Apache Bench for the number of times provided
+# Start Apache Bench
 #
-./run-ab.sh 5 > ab.log &
-PID_AB=$!
+ab -n 20000 http://localhost:8080/hello > ab.log &
 #
-# Wait until appear the message 'FINISHED' or timeout reached.
+# Wait until appear the message 'Total' in ab.log
 #
 sleep 1
-while [ $elapsed_time -lt $timeout ]; do
-    if grep -m1 'FINISHED run Apache Bench!' < ab.log; then
-        break
-    fi
-
+while ! grep -m1 'Total' < ab.log; do
     sleep 1
-    ((elapsed_time++))
 done
-#
-# If we reached the timeout than we have to kill AB process.
-#
-if [ $elapsed_time -ge $timeout ]; then
-    echo "Timeout reached. Exiting script."
-    kill $PID_AB
-    wait $PID_AB
-fi
 
 # Gracefully terminate the Spring Boot application
 kill $PID_WEBFLUX
 
-# Wait for the process to exit
-wait $PID_WEBFLUX
